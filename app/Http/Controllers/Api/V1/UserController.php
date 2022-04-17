@@ -41,4 +41,25 @@ class UserController extends APIController
         'role' => 'user'
     ]);
     }
+
+    public function updateInfo(Request $request)
+    {
+        $this->validate($request, [
+            'full_name' => 'required|string|min:2|max:128',
+            'email' => 'required|email',
+            'mobile' => 'required|digits:11',
+        ]);
+
+        $this->userRepository->update($request->id,[
+            'full_name' => $request->full_name,
+            'email' => $request->email,
+            'mobile' => $request->mobile
+        ]);
+
+        return $this->respondSuccess('اطلاعات کاربر با موفقیت بروزرسانی گردید.',[
+            'full_name' => $request->full_name,
+            'email' => $request->email,
+            'mobile' => $request->mobile
+        ]);
+    }
 }

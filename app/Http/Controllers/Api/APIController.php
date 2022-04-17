@@ -38,7 +38,7 @@ class APIController extends Controller
             'message' => $message,
             'data' => $data
         ];
-        return response()->json($responseData,)->setStatusCode($this->getStatusCode());
+        return response()->json($responseData)->setStatusCode($this->getStatusCode());
     }
 
     private function setStatusCode(int $statusCode)
