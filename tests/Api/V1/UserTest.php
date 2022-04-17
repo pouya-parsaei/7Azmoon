@@ -12,7 +12,7 @@ class UserTest extends TestCase
             'full_name' => 'Pouya Parsaei',
             'email' => 'pya.prs@gmail.com',
             'mobile' => '09121112222',
-            'password' => '123456'
+            'password' => '123456',
         ]);
 
         $this->assertEquals(201, $response->status());
@@ -24,8 +24,16 @@ class UserTest extends TestCase
                 'full_name',
                 'email',
                 'mobile',
-                'password'
+                'password',
+                'role'
             ]
         ]);
+    }
+
+    public function test_must_throw_an_exception_when_parameters_does_not_pass()
+    {
+        $response = $this->call('POST', 'api/v1/users',[]);
+        $this->assertEquals(422, $response->status());
+
     }
 }

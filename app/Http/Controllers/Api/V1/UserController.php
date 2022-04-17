@@ -2,33 +2,43 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\APIController;
 use App\Repositories\Contracts\UserRepositoryInterface;
+use Illuminate\Http\Request;
 
-class UserController extends Controller
+class UserController extends APIController
 {
 
     public function __construct(private UserRepositoryInterface $userRepository)
     {
 
     }
-    public function store()
+
+    public function store(Request $request)
     {
-        $this->userRepository->store([
-            'full_name' => 'Pouya Parsaei',
-            'email' => 'pya.prs@gmail.com',
-            'mobile' => '09121112222',
-            'password' => '123456'
+
+        $this->validate($request, [
+            'full_name' => 'required|string|min:2|max:128',
+            'email' => 'required|email',
+            'mobile' => 'required|digits:11',
+            'password' => 'required|min:6|max:128'
         ]);
-        return response()->json([
-            'success' => true,
-            'message' => 'کاربر با موفقیت ایجاد شد.',
-            'data' => [
-                'full_name' => 'Pouya Parsaei',
-                'email' => 'pya.prs@gmail.com',
-                'mobile' => '09121112222',
-                'password' => '123456'
-            ]
-        ])->setStatusCode(201);
+
+
+        $this->userRepository->store([
+            'full_name' => $request->full_name,
+            'email' => $request->email,
+            'mobile' => $request->mobile,
+            'password' => $request->password,
+            'role' => 'user'
+        ]);
+
+        return $this->respondCreated('کاربر با موفقیت ایجاد شد.',[
+        'full_name' => $request->full_name,
+        'email' => $request->email,
+        'mobile' => $request->mobile,
+        'password' => $request->password,
+        'role' => 'user'
+    ]);
     }
 }
