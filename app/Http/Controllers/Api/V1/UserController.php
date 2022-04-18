@@ -29,17 +29,17 @@ class UserController extends APIController
             'full_name' => $request->full_name,
             'email' => $request->email,
             'mobile' => $request->mobile,
-            'password' => $request->password,
+            'password' => app('hash')->make($request->password),
             'role' => 'user'
         ]);
 
-        return $this->respondCreated('کاربر با موفقیت ایجاد شد.',[
-        'full_name' => $request->full_name,
-        'email' => $request->email,
-        'mobile' => $request->mobile,
-        'password' => $request->password,
-        'role' => 'user'
-    ]);
+        return $this->respondCreated('کاربر با موفقیت ایجاد شد.', [
+            'full_name' => $request->full_name,
+            'email' => $request->email,
+            'mobile' => $request->mobile,
+            'password' => $request->password,
+            'role' => 'user'
+        ]);
     }
 
     public function updateInfo(Request $request)
@@ -50,16 +50,47 @@ class UserController extends APIController
             'mobile' => 'required|digits:11',
         ]);
 
-        $this->userRepository->update($request->id,[
+        $this->userRepository->update($request->id, [
             'full_name' => $request->full_name,
             'email' => $request->email,
             'mobile' => $request->mobile
         ]);
 
-        return $this->respondSuccess('اطلاعات کاربر با موفقیت بروزرسانی گردید.',[
+        return $this->respondSuccess('اطلاعات کاربر با موفقیت بروزرسانی گردید.', [
             'full_name' => $request->full_name,
             'email' => $request->email,
             'mobile' => $request->mobile
         ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $this->validate($request, [
+            'password' => 'min:6|required_with:password_repeat|same:password_repeat',
+            'password_repeat' => 'min:6'
+        ]);
+
+        $this->userRepository->update($request->id, [
+            'password' => app('hash')->make($request->password)
+        ]);
+
+        return $this->respondSuccess('رمز عبور با موفقیت بروزرسانی گردید.', [
+            'full_name' => $request->full_name,
+            'email' => $request->email,
+            'mobile' => $request->mobile
+        ]);
+    }
+
+    public function index(Request $request)
+    {
+        $this->validate($request, [
+            'search' => 'nullable|string',
+            'page' => 'required|numeric',
+            'pagesize' => 'nullable|numeric'
+        ]);
+
+        $users = $this->userRepository->paginate($request->page, $request->pagesize ?? 20, $request->search ?? null);
+        return $this->respondSuccess('لیست کاربران',$users);
+
     }
 }
