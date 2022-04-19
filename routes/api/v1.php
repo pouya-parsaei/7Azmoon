@@ -9,6 +9,7 @@ $router->group(['prefix' => 'api/v1'],function() use ($router){
         $router->put('change-password','Api\V1\UserController@updatePassword');
         $router->get('','Api\V1\UserController@index');
         $router->delete('','Api\V1\UserController@delete');
+        $router->get('test','Api\V1\UserController@test');
 
     });
 });

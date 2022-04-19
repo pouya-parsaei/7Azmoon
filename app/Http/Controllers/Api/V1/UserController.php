@@ -95,6 +95,15 @@ class UserController extends APIController
 
     }
 
+    public function test(Request $request)
+    {
+        $this->validate($request,[
+           'id' =>'required'
+        ]);
+        $user = $this->userRepository->find($request->id);
+        dd($user->getFullName());
+    }
+
     public function delete(Request $request)
     {
         $this->validate($request,[
