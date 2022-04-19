@@ -6,7 +6,6 @@ use App\Repositories\Contracts\RepositoryInterface;
 
 class JsonBaseRepository implements RepositoryInterface
 {
-
     public function store(array $data)
     {
         if (file_exists('users.json')) {
@@ -86,8 +85,28 @@ class JsonBaseRepository implements RepositoryInterface
         // TODO: Implement find() method.
     }
 
-    public function delete(array $where)
+    public function delete(int $id)
     {
-        // TODO: Implement delete() method.
+        $file = 'users.json';
+        $users = json_decode(file_get_contents($file),true);
+        foreach($users as $key => $user){
+            if($user['id'] == $id){
+
+                unset($users[$key]);
+
+                if(file_exists($file)){
+                    unlink($file);
+                }
+
+                file_put_contents($file,json_encode($users));
+                break;
+            }
+
+        }
+    }
+
+    public function deleteBy(array $where)
+    {
+        // TODO: Implement deleteBy() method.
     }
 }

@@ -66,6 +66,7 @@ class UserController extends APIController
     public function updatePassword(Request $request)
     {
         $this->validate($request, [
+            'id' => 'required|numeric',
             'password' => 'min:6|required_with:password_repeat|same:password_repeat',
             'password_repeat' => 'min:6'
         ]);
@@ -92,5 +93,14 @@ class UserController extends APIController
         $users = $this->userRepository->paginate($request->page, $request->pagesize ?? 20, $request->search ?? null);
         return $this->respondSuccess('لیست کاربران',$users);
 
+    }
+
+    public function delete(Request $request)
+    {
+        $this->validate($request,[
+           'id' =>'required'
+        ]);
+        $this->userRepository->delete($request->id);
+        return $this->respondSuccess('کاربر با موفقیت حذف شد',[]);
     }
 }

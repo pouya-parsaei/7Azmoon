@@ -87,6 +87,12 @@ class UserTest extends TestCase
         ]);
     }
 
+    public function test_must_throw_an_exception_when_parameters_does_not_pass_to_update_user_password()
+    {
+        $response = $this->call('PUT', 'api/v1/users/change-password', []);
+        $this->assertEquals(422, $response->status());
+
+    }
     public function test_should_get_users()
     {
         $pageSize = 5;
@@ -128,4 +134,17 @@ class UserTest extends TestCase
         ]);
     }
 
+    public function test_should_delete_user()
+    {
+        $response = $this->call('DELETE','api/v1/users',[
+            'id'=>'712'
+        ]);
+
+        $this->assertEquals(200, $response->status());
+        $this->seeJsonStructure([
+            'success',
+            'message',
+            'data'
+        ]);
+    }
 }
