@@ -25,20 +25,19 @@ class UserController extends APIController
         ]);
 
 
-        $this->userRepository->store([
+        $createdUser = $this->userRepository->store([
             'full_name' => $request->full_name,
             'email' => $request->email,
             'mobile' => $request->mobile,
             'password' => app('hash')->make($request->password),
-            'role' => 'user'
+
         ]);
 
         return $this->respondCreated('کاربر با موفقیت ایجاد شد.', [
-            'full_name' => $request->full_name,
-            'email' => $request->email,
-            'mobile' => $request->mobile,
-            'password' => $request->password,
-            'role' => 'user'
+            'full_name' => $createdUser->getFullName(),
+            'email' => $createdUser->getEmail(),
+            'mobile' => $createdUser->getMobile(),
+            'password' => $createdUser->getPassword(),
         ]);
     }
 
