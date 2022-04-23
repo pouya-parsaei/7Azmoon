@@ -15,7 +15,7 @@ class EloquentBaseRepository implements RepositoryInterface
 
     public function update(int $id, array $data)
     {
-        return $this->model::where('id', $id)->update($data);
+        return $this->model::where('id', $id)->first()->update($data);
     }
 
     public function all(array $where)
@@ -34,9 +34,9 @@ class EloquentBaseRepository implements RepositoryInterface
         return $this->model::find($id);
     }
 
-    public function delete(int $id)
+    public function delete(int $id):bool
     {
-     return $this->model::delete($id);
+     return $this->model::destroy($id);
     }
 
     public function deleteBy(array $where)
@@ -51,8 +51,16 @@ class EloquentBaseRepository implements RepositoryInterface
 
     }
 
-    public function paginate(int $page, int $pageSize = 20, string $search = null)
+    public function paginate(int $page, int $pageSize = 20, string $search = null):array
     {
-        // TODO: Implement paginate() method.
+        if(is_null($search)){
+            return $this->model::paginate($pageSize,['full_name','mobile','email'],null,$page)->toArray();
+        }
+
+        return $this->model::orWhere('full_name',$search)
+            ->orWhere('mobile',$search)
+            ->orWhere('email',$search)
+        ->paginate($pageSize,['full_name','mobile','email'],null,$page)->toArray();
+
     }
 }

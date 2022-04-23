@@ -12,9 +12,9 @@ interface RepositoryInterface
 
     public function find(int $id);
 
-    public function delete(int $id);
+    public function delete(int $id):bool;
 
     public function deleteBy(array $where);
 
-    public function paginate(int $page, int $pageSize = 20,string $search = null);
+    public function paginate(int $page, int $pageSize = 20,string $search = null):array;
 }

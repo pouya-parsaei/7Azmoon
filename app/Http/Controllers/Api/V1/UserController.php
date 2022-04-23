@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\APIController;
 use App\Repositories\Contracts\UserRepositoryInterface;
+use http\Exception\RuntimeException;
 use Illuminate\Http\Request;
 
 class UserController extends APIController
@@ -44,21 +45,25 @@ class UserController extends APIController
     public function updateInfo(Request $request)
     {
         $this->validate($request, [
+            'id' => 'required',
             'full_name' => 'required|string|min:2|max:128',
             'email' => 'required|email',
-            'mobile' => 'required|digits:11',
+            'mobile' => 'required|digits:11'
         ]);
 
-        $this->userRepository->update($request->id, [
+        try{
+        $updatedUser = $this->userRepository->update($request->id, [
             'full_name' => $request->full_name,
             'email' => $request->email,
             'mobile' => $request->mobile
         ]);
-
+        }catch (\Exception $e){
+            return $this->respondInternalError('خطا در بروزرسانی اطلاعات');
+        }
         return $this->respondSuccess('اطلاعات کاربر با موفقیت بروزرسانی گردید.', [
-            'full_name' => $request->full_name,
-            'email' => $request->email,
-            'mobile' => $request->mobile
+            'full_name' => $updatedUser->getFullName(),
+            'email' => $updatedUser->getEmail(),
+            'mobile' => $updatedUser->getMobile()
         ]);
     }
 
@@ -70,14 +75,18 @@ class UserController extends APIController
             'password_repeat' => 'min:6'
         ]);
 
-        $this->userRepository->update($request->id, [
-            'password' => app('hash')->make($request->password)
-        ]);
+        try {
+            $updatedUser = $this->userRepository->update($request->id, [
+                'password' => app('hash')->make($request->password)
+            ]);
+        } catch (\Exception $e) {
+            return $this->respondInternalError('خطا در بروزرسانی');
+        }
 
         return $this->respondSuccess('رمز عبور با موفقیت بروزرسانی گردید.', [
-            'full_name' => $request->full_name,
-            'email' => $request->email,
-            'mobile' => $request->mobile
+            'full_name' => $updatedUser->getFullName(),
+            'email' => $updatedUser->getFullName(),
+            'mobile' => $updatedUser->getFullName()
         ]);
     }
 
@@ -90,14 +99,14 @@ class UserController extends APIController
         ]);
 
         $users = $this->userRepository->paginate($request->page, $request->pagesize ?? 20, $request->search ?? null);
-        return $this->respondSuccess('لیست کاربران',$users);
+        return $this->respondSuccess('لیست کاربران', $users);
 
     }
 
     public function test(Request $request)
     {
-        $this->validate($request,[
-           'id' =>'required'
+        $this->validate($request, [
+            'id' => 'required'
         ]);
         $user = $this->userRepository->find($request->id);
         dd($user->getFullName());
@@ -105,10 +114,17 @@ class UserController extends APIController
 
     public function delete(Request $request)
     {
-        $this->validate($request,[
-           'id' =>'required'
+        $this->validate($request, [
+            'id' => 'required'
         ]);
-        $this->userRepository->delete($request->id);
-        return $this->respondSuccess('کاربر با موفقیت حذف شد',[]);
+
+        if (!$this->userRepository->find($request->id)) {
+            return $this->respondNotFound('کاربر یافت نشد.');
+        }
+
+        if (!$this->userRepository->delete($request->id)) {
+            return $this->respondInternalError('خطایی رخ داده');
+        }
+        return $this->respondSuccess('کاربر با موفقیت حذف شد', []);
     }
 }

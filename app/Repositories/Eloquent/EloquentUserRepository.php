@@ -22,4 +22,12 @@ class EloquentUserRepository extends EloquentBaseRepository implements UserRepos
         return new UserEloquentEntity($newUser);
     }
 
+    public function update(int $id, array $data): UserEntity
+    {
+        return !parent::update($id, $data) ? throw new \Exception('خطا در بروزرسانی اطلاعات') :
+            new UserEloquentEntity(parent::find($id));
+
+    }
+
+
 }
