@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\Api\V1;
+namespace Tests\Api\V1\Users;
 
+use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Tests\TestCase;
@@ -13,15 +14,20 @@ class UserTest extends TestCase
 
     public function test_should_create_a_new_user()
     {
-        $response = $this->call('POST', 'api/v1/users', [
+        $newUser = [
             'full_name' => 'Pouya Parsaei',
             'email' => 'pya.prs@gmail.com',
             'mobile' => '09121112222',
             'password' => '123456',
-        ]);
+        ];
+        $response = $this->call('POST', 'api/v1/users', $newUser);
 
         $this->assertEquals(201, $response->status());
-
+        $this->seeInDatabase('users',[
+            'full_name' => 'Pouya Parsaei',
+            'email' => 'pya.prs@gmail.com',
+            'mobile' => '09121112222',
+        ]);
         $this->seeJsonStructure([
             'success',
             'message',
