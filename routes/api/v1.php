@@ -19,6 +19,9 @@ $router->group(['prefix' => 'api/v1'],function() use ($router){
     });
 
     $router->group(['prefix' => 'categories'],function() use ($router) {
+        $router->get('','Api\V1\CategoryController@index');
         $router->post('','Api\V1\CategoryController@store');
+        $router->delete('','Api\V1\CategoryController@delete');
+        $router->put('','Api\V1\CategoryController@update');
        });
 });

@@ -21,13 +21,10 @@ class UserTest extends TestCase
             'password' => '123456',
         ];
         $response = $this->call('POST', 'api/v1/users', $newUser);
+        $newUser['password'] =json_decode($response->getContent(),true)['data']['password'];
 
         $this->assertEquals(201, $response->status());
-        $this->seeInDatabase('users',[
-            'full_name' => 'Pouya Parsaei',
-            'email' => 'pya.prs@gmail.com',
-            'mobile' => '09121112222',
-        ]);
+        $this->seeInDatabase('users',$newUser);
         $this->seeJsonStructure([
             'success',
             'message',

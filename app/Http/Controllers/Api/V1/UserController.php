@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\APIController;
 use App\Repositories\Contracts\UserRepositoryInterface;
-use http\Exception\RuntimeException;
 use Illuminate\Http\Request;
 
 class UserController extends APIController
@@ -51,13 +50,13 @@ class UserController extends APIController
             'mobile' => 'required|digits:11'
         ]);
 
-        try{
-        $updatedUser = $this->userRepository->update($request->id, [
-            'full_name' => $request->full_name,
-            'email' => $request->email,
-            'mobile' => $request->mobile
-        ]);
-        }catch (\Exception $e){
+        try {
+            $updatedUser = $this->userRepository->update($request->id, [
+                'full_name' => $request->full_name,
+                'email' => $request->email,
+                'mobile' => $request->mobile
+            ]);
+        } catch (\Exception $e) {
             return $this->respondInternalError('خطا در بروزرسانی اطلاعات');
         }
         return $this->respondSuccess('اطلاعات کاربر با موفقیت بروزرسانی گردید.', [
@@ -98,7 +97,8 @@ class UserController extends APIController
             'pagesize' => 'nullable|numeric'
         ]);
 
-        $users = $this->userRepository->paginate($request->page, $request->pagesize ?? 20, $request->search ?? null);
+        $users = $this->userRepository->paginate($request->page, $request->pagesize ?? 20,
+            $request->search ?? null, ['full_name', 'email', 'mobile']);
         return $this->respondSuccess('لیست کاربران', $users);
 
     }
