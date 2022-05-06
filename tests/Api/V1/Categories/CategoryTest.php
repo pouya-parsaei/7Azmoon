@@ -3,13 +3,14 @@
 namespace Tests\Api\V1\Categories;
 
 use App\Repositories\Contracts\CategoryRepositoryInterface;
+use Tests\Api\Contracts\CategoryMaker;
 use Tests\Api\Contracts\Faker;
 use Tests\TestCase;
 
 class CategoryTest extends TestCase
 {
 
-    use Faker;
+    use Faker,CategoryMaker;
 
     public function setUp(): void
     {
@@ -127,22 +128,5 @@ class CategoryTest extends TestCase
     }
 
 
-    private function createCategories($count = 1)
-    {
-        $this->setUpFaker();
 
-        $categoryRepository = $this->app->make(CategoryRepositoryInterface::class);
-
-        $categories = [];
-
-        foreach (range(0, $count) as $item) {
-            $newCategory = [
-                'name' => $this->faker->name,
-                'slug' => $this->faker->slug
-            ];
-            $categories[] = $categoryRepository->store($newCategory);
-        }
-
-        return $categories;
-    }
 }
