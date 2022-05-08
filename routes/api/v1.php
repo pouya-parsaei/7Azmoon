@@ -34,5 +34,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
     $router->group(['prefix' => 'questions'], function () use ($router) {
         $router->post('', 'Api\V1\QuestionController@store');
+        $router->put('', 'Api\V1\QuestionController@update');
+        $router->delete('', 'Api\V1\QuestionController@delete');
+        $router->get('', 'Api\V1\QuestionController@index');
+        $router->get('get-quiz-questions', 'Api\V1\QuestionController@getQuizQuestions');
     });
 });

@@ -6,12 +6,12 @@ use App\Repositories\Contracts\QuizRepositoryInterface;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Tests\Api\Contracts\CategoryMaker;
 use Tests\Api\Contracts\Faker;
-use Tests\Api\Contracts\QuizMaker;
+use Tests\Api\Contracts\QuestionMaker;
 use Tests\TestCase;
 
 class QuizTest extends TestCase
 {
-    use DatabaseMigrations, Faker,QuizMaker;
+    use DatabaseMigrations, Faker,QuestionMaker;
 
     public function test_ensure_can_create_quiz()
     {
@@ -88,18 +88,18 @@ class QuizTest extends TestCase
     {
         $quizzes = $this->createQuiz(40);
         $pageSize = 5;
-        $serachKey = $quizzes[array_rand($quizzes)]->getTitle();
+        $searchKey = $quizzes[array_rand($quizzes)]->getTitle();
 
         $response = $this->call('GET', 'api/v1/quizzes', [
             'page' => 1,
             'pagesize' => $pageSize,
-            'search' => $serachKey
+            'search' => $searchKey
         ]);
 
         $data = json_decode($response->getContent(), true)['data'];
 
         foreach ($data as $quiz) {
-            $this->assertEquals($serachKey, $quiz['title']);
+            $this->assertEquals($searchKey, $quiz['title']);
         }
         $this->assertResponseOk();
         $this->assertLessThanOrEqual($pageSize, count($data));
