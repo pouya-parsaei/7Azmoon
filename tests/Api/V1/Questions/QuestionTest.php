@@ -33,13 +33,13 @@ class QuestionTest extends TestCase
         $response = $this->call('POST', 'api/v1/questions', $questionData);
 
         $returnedData = json_decode($response->getContent(), true)['data'];
-
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals($questionData['quiz_id'], $returnedData['quiz_id']);
         $this->assertEquals($questionData['title'], $returnedData['title']);
         $this->assertEquals($questionData['options'], $returnedData['options']);
         $this->assertEquals($questionData['score'], $returnedData['score']);
         $this->assertEquals($questionData['activation_status'], $returnedData['activation_status']);
+
         $this->seeInDatabase('questions', [
             'id' => $returnedData['id'],
             'quiz_id' => $returnedData['quiz_id'],

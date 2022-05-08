@@ -25,4 +25,11 @@ class JsonUtility
         }
         return \DB::raw("CAST('{$json}' AS JSON)");
     }
+
+    public static function removeSpacesAndCastToJson($json)
+    {
+        $json = json_encode($json);
+        return \DB::raw("CAST('{$json}' AS JSON)");
+
+    }
 }

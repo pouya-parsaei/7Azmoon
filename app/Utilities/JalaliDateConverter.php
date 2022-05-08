@@ -10,11 +10,15 @@ class JalaliDateConverter
 
     public static function convertToGregorianDateTimeFormat(string $jalaliDateTime):string
     {
+
         $explodedJalaliDate = explode('/', $jalaliDateTime);
+
         $explodedGregorianDate = Verta::getGregorian($explodedJalaliDate[0],$explodedJalaliDate[1],substr($explodedJalaliDate[2],0,2));
-        $hour = substr($explodedJalaliDate[2],4,2);
+        $hour = substr($explodedJalaliDate[2],3,2);
         $minute = substr($explodedJalaliDate[2],6,2);
-        return Carbon::create($explodedGregorianDate[0], $explodedGregorianDate[1], $explodedGregorianDate[2], (int)$hour, (int)$minute, 00)->toDateTimeString();
+        $second = substr($explodedJalaliDate[2],9,2);
+        $convertedDateTime = Carbon::create($explodedGregorianDate[0], $explodedGregorianDate[1], $explodedGregorianDate[2], (int)$hour, (int)$minute, $second)->toDateTimeString();
+        return  $convertedDateTime;
     }
 
     private function jalali_to_gregorian($j_y, $j_m, $j_d)
