@@ -3,16 +3,18 @@
 namespace Tests\Api\V1\AnswerSheets;
 
 use App\Consts\AnswerSheetStatus;
+use App\Repositories\Contracts\AnswerSheetRepositoryInterface;
 use App\Utilities\JsonUtility;
 use Hekmatinasser\Verta\Verta;
 use Laravel\Lumen\Testing\DatabaseMigrations;
+use Tests\Api\Contracts\AnswerSheetMaker;
 use Tests\Api\Contracts\Faker;
 use Tests\Api\Contracts\QuestionMaker;
 use Tests\TestCase;
 
 class AnswerSheetTest extends TestCase
 {
-    use DatabaseMigrations, Faker, QuestionMaker;
+    use DatabaseMigrations, Faker, QuestionMaker, AnswerSheetMaker;
 
     public function test_ensure_can_create_answer_sheet()
     {
@@ -62,5 +64,106 @@ class AnswerSheetTest extends TestCase
                 'finished_at'
             ]
         ]);
+    }
+
+    public function test_ensure_can_delete_answer_sheet()
+    {
+        $answerSheet = $this->createAnswerSheet()[0];
+        $response = $this->call('DELETE','api/v1/answer-sheets',[
+            'id' => $answerSheet->getId()
+        ]);
+
+        $this->assertResponseOk();
+        $this->seeJsonStructure([
+            'success',
+            'message',
+            'data'
+        ]);
+        $this->notSeeInDatabase('answer_sheets',[
+            'id' => $answerSheet->getId(),
+            'quiz_id' => $answerSheet->getQuizId(),
+            'answers' => JsonUtility::removeSpacesAndCastToJson($answerSheet->getAnswers()),
+            'status' => $answerSheet->getStatus(),
+            'score' => $answerSheet->getScore(),
+            'finished_at' => $answerSheet->getFinishedAt()->toDateTimeString()
+        ]);
+    }
+
+    public function test_ensure_can_get_answer_sheets()
+    {
+        $answerSheetRepository = $this->app->make(AnswerSheetRepositoryInterface::class);
+
+        $answerSheets = $this->createAnswerSheet(100);
+        $page = (string)1;
+        $pageSize = (string)12;
+        $response = $this->call('GET','api/v1/answer-sheets',[
+            'page'=> $page,
+            'pagesize' => $pageSize
+        ]);
+
+        $data = json_decode($response->getContent(), true)['data'];
+
+        $this->assertResponseOk();
+        $this->assertLessThanOrEqual($pageSize, count($data));
+        $this->seeJsonStructure([
+            'success',
+            'message',
+            'data'
+        ]);
+
+        foreach($data as $returnedAnswerSheet){
+            $answerSheetInDatabase = $answerSheetRepository->find($returnedAnswerSheet['id']);
+            $this->assertEquals($answerSheetInDatabase->getId(),$returnedAnswerSheet['id']);
+            $this->assertEquals($answerSheetInDatabase->getQuizId(),$returnedAnswerSheet['quiz_id']);
+            $this->assertEquals($answerSheetInDatabase->getAnswers(),json_decode($returnedAnswerSheet['answers'],true));
+            $this->assertEquals($answerSheetInDatabase->getStatus(),$returnedAnswerSheet['status']);
+            $this->assertEquals(
+                $answerSheetInDatabase->getFinishedAt()->toDateTimeString(),
+                Verta::parseFormat('Y/n/j H:i:s',$returnedAnswerSheet['finished_at'])->toCarbon()->toDateTimeString()
+            );
+        }
+
+    }
+
+    public function test_ensure_can_get_filtered_answer_sheets()
+    {
+        $answerSheetRepository = $this->app->make(AnswerSheetRepositoryInterface::class);
+
+        $answerSheets = $this->createAnswerSheet(100);
+        $page = (string)1;
+        $pageSize = random_int(5,10);
+        $quizId = (string)$answerSheets[array_rand($answerSheets)]->getQuizId();
+
+        $response = $this->call('GET','api/v1/answer-sheets/get-quiz-answer-sheets',[
+            'page'=> $page,
+            'pagesize' => $pageSize,
+            'quiz_id' => $quizId
+        ]);
+
+        $data = json_decode($response->getContent(), true)['data'];
+
+        foreach ($data as $answerSheet) {
+            $this->assertEquals($quizId, $answerSheet['quiz_id']);
+        }
+        $this->assertResponseOk();
+        $this->assertLessThanOrEqual($pageSize, count($data));
+        $this->seeJsonStructure([
+            'success',
+            'message',
+            'data'
+        ]);
+
+        foreach($data as $returnedAnswerSheet){
+            $answerSheetInDatabase = $answerSheetRepository->find($returnedAnswerSheet['id']);
+            $this->assertEquals($answerSheetInDatabase->getId(),$returnedAnswerSheet['id']);
+            $this->assertEquals($answerSheetInDatabase->getQuizId(),$returnedAnswerSheet['quiz_id']);
+            $this->assertEquals($answerSheetInDatabase->getAnswers(),json_decode($returnedAnswerSheet['answers'],true));
+            $this->assertEquals($answerSheetInDatabase->getStatus(),$returnedAnswerSheet['status']);
+            $this->assertEquals(
+                $answerSheetInDatabase->getFinishedAt()->toDateTimeString(),
+                Verta::parseFormat('Y/n/j H:i:s',$returnedAnswerSheet['finished_at'])->toCarbon()->toDateTimeString()
+            );
+        }
+
     }
 }

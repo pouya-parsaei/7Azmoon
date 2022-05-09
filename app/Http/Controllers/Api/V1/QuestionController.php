@@ -20,7 +20,6 @@ class QuestionController extends APIController
             'page' => ['required', 'numeric'],
             'pagesize' => ['numeric', 'nullable'],
             'search' => ['string', 'nullable'],
-            'quiz_id' => ['numeric', 'nullable'],
         ]);
 
         $questions = $this->questionRepository->paginate($request->page, $request->pagesize ?? 20, $request->search ?? null,
@@ -62,6 +61,9 @@ class QuestionController extends APIController
     public function getQuizQuestions(Request $request)
     {
         $this->validate($request, [
+            'page' => ['required', 'numeric'],
+            'pagesize' => ['numeric', 'nullable'],
+            'search' => ['string', 'nullable'],
             'quiz_id' => ['required', 'numeric', Rule::exists('quizzes', 'id')]
         ]);
         $questions = $this->questionRepository->getQuizQuestions($request->page, $request->pagesize ?? 20, $request->search ?? null,

@@ -13,6 +13,47 @@ class CategoryController extends APIController
     {
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @OA\Get(
+     *     path="/api/v1/categories",
+     *     description="Returns All Categories",
+     *     tags={"categories"},
+     *     @OA\Parameter(
+     *          name="search",
+     *          in="path",
+     *          description="By passing this parameter you can filter the result",
+     *          required=false,
+     *          @OA\Schema(type="string")
+     *      ),
+     *     @OA\Parameter(
+     *          name="page",
+     *          in="path",
+     *          description="sets page number",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="pagesize",
+     *          in="path",
+     *          description="sets page size",
+     *          required=false,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *
+     *     @OA\Response(
+     *      response = 200,
+     *      description = "Returns All Categories",
+     *      @OA\JsonContent(
+     *            @OA\Property(property="name", type="string", example="Category 1"),
+     *            @OA\Property(property="slug", type="string", example="category-1")
+     *        )
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         $this->validate($request, [

@@ -41,6 +41,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     });
 
     $router->group(['prefix' => 'answer-sheets'], function () use ($router) {
+        $router->get('', 'Api\V1\AnswerSheetController@index');
+        $router->get('get-quiz-answer-sheets', 'Api\V1\AnswerSheetController@getQuizAnswerSheets');
         $router->post('', 'Api\V1\AnswerSheetController@store');
+        $router->delete('', 'Api\V1\AnswerSheetController@delete');
     });
 });
